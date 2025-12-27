@@ -1,0 +1,197 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//////////////////////////////////////
+// ENUMS
+//////////////////////////////////////
+
+enum Role {
+  BUYER
+  SELLER
+  BOTH
+  ADMIN
+}
+
+enum Lane {
+  CLEAN
+  PRIVATE
+}
+
+enum OrderStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  DISPUTED
+  CANCELLED
+}
+
+enum DisputeStatus {
+  OPEN
+  RESOLVED
+  REJECTED
+}
+
+enum TrafficType {
+  EMAIL
+  SOCIAL
+  NATIVE
+  DISPLAY
+  PUSH
+  MIXED
+}
+
+//////////////////////////////////////
+// USER
+//////////////////////////////////////
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  passwordHash  String
+  role          Role     @default(BUYER)
+  laneAccess    Lane     @default(CLEAN)
+  walletAddress String?  @unique
+  isApproved    Boolean  @default(false)
+  isBanned      Boolean  @default(false)
+
+  sellerProfile SellerProfile?
+  sellerOrders Order[] @relation("SellerOrders")
+  orders        Order[] @relation("BuyerOrders")
+  disputes      Dispute[]
+
+  referralsSent     Referral[] @relation("Referrer")
+  referralsReceived Referral[] @relation("Referred")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//////////////////////////////////////
+// SELLER PROFILE
+//////////////////////////////////////
+
+model SellerProfile {
+  id              String       @id @default(uuid())
+  userId          String       @unique
+  displayName     String
+  bio             String?
+  trafficTypes    TrafficType[]
+  allowedLanes    Lane[]
+  complianceAgreed Boolean     @default(false)
+
+  reputationClean   Int @default(0)
+  reputationPrivate Int @default(0)
+
+  user     User     @relation(fields: [userId], references: [id])
+  listings Listing[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//////////////////////////////////////
+// LISTINGS
+//////////////////////////////////////
+
+model Listing {
+  id           String      @id @default(uuid())
+  sellerId     String
+  lane         Lane
+  trafficType  TrafficType
+  title        String
+  description  String?
+  price        Float
+  minOrder     Int
+  maxDaily     Int
+  isActive     Boolean     @default(true)
+
+  seller SellerProfile @relation(fields: [sellerId], references: [id])
+  orders Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//////////////////////////////////////
+// ORDERS
+//////////////////////////////////////
+
+model Order {
+  id            String      @id @default(uuid())
+  buyerId       String
+  sellerId      String
+  listingId     String
+  lane          Lane
+  destinationUrl String
+  trackingUrl   String?
+  quantity      Int
+  totalPrice   Float
+  status        OrderStatus @default(PENDING)
+
+  buyer   User    @relation("BuyerOrders", fields: [buyerId], references: [id])
+  seller  User    @relation("SellerOrders", fields: [sellerId], references: [id])
+  listing Listing @relation(fields: [listingId], references: [id])
+
+  escrow Escrow?
+  dispute Dispute?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//////////////////////////////////////
+// ESCROW (PLACEHOLDER FOR CRYPTO)
+//////////////////////////////////////
+
+model Escrow {
+  id        String  @id @default(uuid())
+  orderId  String  @unique
+  amount   Float
+  currency String
+  released Boolean @default(false)
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+//////////////////////////////////////
+// DISPUTES
+//////////////////////////////////////
+
+model Dispute {
+  id        String        @id @default(uuid())
+  orderId  String        @unique
+  openedBy String
+  reason   String
+  status   DisputeStatus @default(OPEN)
+  resolution String?
+
+  order Order @relation(fields: [orderId], references: [id])
+  user  User  @relation(fields: [openedBy], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//////////////////////////////////////
+// REFERRALS
+//////////////////////////////////////
+
+model Referral {
+  id           String @id @default(uuid())
+  referrerId   String
+  referredId   String
+  accepted     Boolean @default(false)
+
+  referrer User @relation("Referrer", fields: [referrerId], references: [id])
+  referred User @relation("Referred", fields: [referredId], references: [id])
+
+  createdAt DateTime @default(now())
+}
