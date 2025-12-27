@@ -70,7 +70,7 @@
    - In Web Service Settings → Environment
    - Add:
      ```
-     DATABASE_URL=<paste_internal_database_url>
+     DATABASE_URL=<postgresql://adflo_user:3d3DpsT9NaNGkEliXD8OTZugzeHrurXh@dpg-d584dgmuk2gs73ddgqbg-a/adflo>
      JWT_SECRET=<generate_secure_key>
      NODE_ENV=production
      PORT=10000
