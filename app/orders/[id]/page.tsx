@@ -16,7 +16,7 @@ export default function OrderDetailPage() {
 function OrderDetailContent() {
   const params = useParams()
   const router = useRouter()
-  const orderId = params.id as string
+  const orderId = (params?.id as string) || ''
   const [order, setOrder] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 

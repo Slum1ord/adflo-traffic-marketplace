@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, FormEvent } from 'react'
+import { useState, FormEvent, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function RegisterPage() {
+function RegisterContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const defaultRole = searchParams.get('role') || 'BUYER'
+  const defaultRole = searchParams?.get('role') || 'BUYER'
 
   const [formData, setFormData] = useState({
     email: '',
@@ -188,7 +188,7 @@ export default function RegisterPage() {
                 autoComplete="new-password"
                 required
                 className={`input ${errors.password ? 'border-red-500 focus:ring-red-500' : ''}`}
-                placeholder=""""""""""
+                placeholder="Enter your password"
                 value={formData.password}
                 onChange={handleChange}
                 disabled={loading}
@@ -210,7 +210,7 @@ export default function RegisterPage() {
                 autoComplete="new-password"
                 required
                 className={`input ${errors.confirmPassword ? 'border-red-500 focus:ring-red-500' : ''}`}
-                placeholder=""""""""""
+                placeholder="Confirm your password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 disabled={loading}
@@ -280,3 +280,12 @@ export default function RegisterPage() {
     </div>
   )
 }
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+      <RegisterContent />
+    </Suspense>
+  )
+}
+

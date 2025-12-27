@@ -1,19 +1,19 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import ListingCard from '@/components/ListingCard'
 
-export default function ListingsPage() {
+function ListingsContent() {
   const searchParams = useSearchParams()
   const [listings, setListings] = useState([])
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState({
-    trafficType: searchParams.get('trafficType') || '',
-    lane: searchParams.get('lane') || '',
-    minPrice: searchParams.get('minPrice') || '',
-    maxPrice: searchParams.get('maxPrice') || '',
-    search: searchParams.get('search') || '',
+    trafficType: searchParams?.get('trafficType') || '',
+    lane: searchParams?.get('lane') || '',
+    minPrice: searchParams?.get('minPrice') || '',
+    maxPrice: searchParams?.get('maxPrice') || '',
+    search: searchParams?.get('search') || '',
   })
 
   useEffect(() => {
@@ -145,3 +145,12 @@ export default function ListingsPage() {
     </div>
   )
 }
+
+export default function ListingsPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+      <ListingsContent />
+    </Suspense>
+  )
+}
+

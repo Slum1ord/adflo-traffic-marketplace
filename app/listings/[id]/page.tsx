@@ -7,7 +7,7 @@ import Link from 'next/link'
 export default function ListingDetailPage() {
   const params = useParams()
   const router = useRouter()
-  const listingId = params.id as string
+  const listingId = (params?.id as string) || ''
   const [listing, setListing] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [purchasing, setPurchasing] = useState(false)
