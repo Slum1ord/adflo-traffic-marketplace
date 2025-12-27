@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: adflo-traffic-backend
+    env: node
+    plan: starter
+    branch: main
+    buildCommand: npm install
+    startCommand: npm run start
+    envVars:
+      - key: DATABASE_URL
+        description: "PostgreSQL database connection string (from Render database)"
+        sync: false
+      - key: JWT_SECRET
+        description: "Secret key for JWT token signing"
+        sync: false
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+
+databases:
+  - name: adflo-traffic-db
+    databaseName: adflo_traffic
+    user: postgres
+    plan: starter
