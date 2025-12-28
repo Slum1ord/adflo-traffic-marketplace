@@ -8,8 +8,9 @@ services:
     startCommand: npm run start
     envVars:
       - key: DATABASE_URL
-        description: "PostgreSQL database connection string (from Render database)"
-        sync: false
+        fromDatabase:
+          name: adflo-traffic-db
+          property: connectionString
       - key: JWT_SECRET
         description: "Secret key for JWT token signing"
         sync: false
